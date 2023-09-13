@@ -235,7 +235,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         :param kwargs: Additional keyword arguments.
         """
         super(Authenticator, cls).add_parser_arguments(
-            add, default_propagation_seconds=120
+            add, default_propagation_seconds=900
         )
         add("credentials", help="STACKIT credentials INI file.")
 

@@ -1,7 +1,8 @@
 from setuptools import setup
 from setuptools import find_packages
+import os
 
-version = "2023.09.12"
+version = os.environ.get("PACKAGE_VERSION", "v0.1.0")
 
 install_requires = [
     "acme>=2.6.0",
@@ -33,7 +34,7 @@ setup(
     version=version,
     description="STACKIT DNS Authenticator plugin for Certbot",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     url="https://github.com/stackitcloud/certbot-dns-stackit",
     author="STACKIT DNS",
     author_email="stackit-dns@mail.schwarz",
