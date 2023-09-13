@@ -1,0 +1,11 @@
+[run]
+branch = True
+source = .
+omit =
+    /opt/homebrew/*
+
+[report]
+show_missing = True
+skip_covered = True
+omit =
+    /opt/homebrew/*
