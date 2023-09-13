@@ -1,5 +1,12 @@
 # Certbot DNS-STACKIT Authenticator Plugin
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/stackitcloud/certbot-dns-stackit/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/stackitcloud/certbot-dns-stackit.svg)](https://github.com/stackitcloud/certbot-dns-stackit/releases)
+[![Python Version](https://img.shields.io/badge/Python-%3E=3.7-blue.svg)](https://www.python.org/downloads/)
+[![Downloads](https://img.shields.io/pypi/dm/certbot-dns-stackit.svg)](https://pypi.org/project/certbot-dns-stackit/)
+[![Code Size](https://img.shields.io/github/languages/code-size/stackitcloud/certbot-dns-stackit.svg)](https://github.com/stackitcloud/certbot-dns-stackit)
+[![Contributors](https://img.shields.io/github/contributors/stackitcloud/certbot-dns-stackit.svg)](https://github.com/stackitcloud/certbot-dns-stackit/graphs/contributors)
+
 The Certbot DNS-Stackit Authenticator Plugin allows you to obtain SSL/TLS certificates from Let's Encrypt using the
 DNS-01 challenge method with STACKIT as your DNS provider. This README provides detailed instructions on how to install
 and use the plugin.
