@@ -7,13 +7,13 @@
 [![Code Size](https://img.shields.io/github/languages/code-size/stackitcloud/certbot-dns-stackit.svg)](https://github.com/stackitcloud/certbot-dns-stackit)
 [![Contributors](https://img.shields.io/github/contributors/stackitcloud/certbot-dns-stackit.svg)](https://github.com/stackitcloud/certbot-dns-stackit/graphs/contributors)
 
-The Certbot DNS-Stackit Authenticator Plugin allows you to obtain SSL/TLS certificates from Let's Encrypt using the
-DNS-01 challenge method with STACKIT as your DNS provider. This README provides detailed instructions on how to install
-and use the plugin.
+The Certbot DNS-STACKIT Authenticator Plugin facilitates the procurement of SSL/TLS certificates from Let's Encrypt
+utilizing the DNS-01 challenge methodology in conjunction with STACKIT as the designated DNS service provider. This
+document elucidates the procedural steps for the installation and operational utilization of this plugin.
 
 ## Installation
 
-You can install the Certbot DNS-STACKIT Authenticator Plugin using pip:
+To initialize the Certbot DNS-STACKIT Authenticator Plugin, deploy the following pip command:
 
 ```bash
 pip install certbot-dns-stackit
@@ -21,20 +21,21 @@ pip install certbot-dns-stackit
 
 ## Usage
 
-Once the plugin is installed, you can use it with Certbot to obtain SSL/TLS certificates. Below are the available
-arguments and examples of how to use them:
+Upon successful integration of the plugin, it becomes viable to employ it with Certbot for the retrieval of SSL/TLS
+certificates. The subsequent section delineates the pertinent arguments and their respective examples:
 
 ### Arguments
 
-| Argument                            | Example Value     | Description                                                                                                                                                                 |
-|-------------------------------------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--authenticator`                   | dns-stackit       | Selects the STACKIT authenticator. It must be set to dns-stackit. (Required)                                                                                                | 
-| `--dns-stackit-credentials`         | ./credentials.ini | Specifies the path to the file where the credentials for STACKIT DNS are stored. This file should contain the dns_stackit_auth_token and dns_stackit_project_id. (Required) |
-| `--dns-stackit-propagation-seconds` | 900               | Sets the time to wait until the DNS record is queried. It is recommended to set this to 900 seconds (15 minutes) for safety. (Default: 900)                                 |
+| Argument                            | Example Value     | Description                                                                                                                                                                     |
+|-------------------------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--authenticator`                   | dns-stackit       | Engages the STACKIT authenticator mechanism. This must be configured as dns-stackit. (Mandatory)                                                                                | 
+| `--dns-stackit-credentials`         | ./credentials.ini | Denotes the directory path to the credentials file for STACKIT DNS. This document must encapsulate the dns_stackit_auth_token and dns_stackit_project_id variables. (Mandatory) |
+| `--dns-stackit-propagation-seconds` | 900               | Configures the delay prior to initiating the DNS record query. A 900-second interval (equivalent to 15 minutes) is recommended. (Default: 900)                                  |
 
 ### Example
 
-Here's an example of how to use Certbot with the Certbot DNS-STACKIT Authenticator Plugin to obtain a certificate:
+Below is a structured example detailing the application of Certbot in conjunction with the DNS-STACKIT
+Authenticator Plugin to retrieve a certificate:
 
 ```bash
 certbot certonly \
@@ -48,20 +49,21 @@ certbot certonly \
   -d '*.example.runs.onstackit.cloud'
 ```
 
-where example.runs.onstackit.cloud is the domain (zone) for which you want to obtain a certificate.
+For this example, example.runs.onstackit.cloud represents the designated domain (zone) for certificate procurement.
 
 ### Example of credentials.ini
 
-To use the plugin, you need to create a credentials.ini file that contains your STACKIT DNS credentials:
+To operationalize the plugin, it's imperative to curate a credentials.ini file encompassing your STACKIT DNS
+credentials:
 
 ```ini
 dns_stackit_auth_token = "your_token_here"
 dns_stackit_project_id = "your_project_id_here"
 ```
 
-Make sure to replace "your_token_here" and "your_project_id_here" with your actual STACKIT authentication token and
-project ID. The service account that owns the token must have the project membership role in order to create record
-sets.
+It's crucial to replace "your_token_here" and "your_project_id_here" placeholders with the genuine STACKIT
+authentication token and project ID. The token's associated service account necessitates project membership privileges
+for record set creation.
 
 ## Test Procedures
 
