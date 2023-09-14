@@ -1,6 +1,6 @@
 # Certbot DNS-STACKIT Authenticator Plugin
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/stackitcloud/certbot-dns-stackit/blob/main/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache2.0-blue.svg)](https://github.com/stackitcloud/certbot-dns-stackit/blob/main/LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/stackitcloud/certbot-dns-stackit.svg)](https://github.com/stackitcloud/certbot-dns-stackit/releases)
 [![Python Version](https://img.shields.io/badge/Python-%3E=3.7-blue.svg)](https://www.python.org/downloads/)
 [![Downloads](https://img.shields.io/pypi/dm/certbot-dns-stackit.svg)](https://pypi.org/project/certbot-dns-stackit/)
