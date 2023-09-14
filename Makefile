@@ -18,3 +18,6 @@ setup-venv:
 .PHONY: venv
 venv: setup-venv
 	$(VENV_PATH)/bin/pip install -e .
+
+.PHONY: build
+build: venv
