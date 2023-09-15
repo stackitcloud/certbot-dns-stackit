@@ -78,5 +78,5 @@ for record set creation.
     ```
 
 ## Contribute
-see [CONTRIBUTING.md](https://github.com/stackitcloud/certbot-dns-stackit/blob/main/CONTRIBUTING.md)
+See [CONTRIBUTING.md](https://github.com/stackitcloud/certbot-dns-stackit/blob/main/CONTRIBUTING.md)
 
