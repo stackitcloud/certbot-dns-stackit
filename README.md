@@ -76,3 +76,7 @@ for record set creation.
     ```bash
     make lint
     ```
+
+## Contribute
+See [CONTRIBUTING.md](https://github.com/stackitcloud/certbot-dns-stackit/blob/main/CONTRIBUTING.md)
+
