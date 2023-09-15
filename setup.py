@@ -18,7 +18,7 @@ install_requires = [
     "flake8",
     "pydocstyle",
     "black",
-    "click==8.0.4",
+    "click==8.1.7",
     "coverage",
 ]
 
