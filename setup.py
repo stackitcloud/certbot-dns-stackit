@@ -2,7 +2,7 @@ from setuptools import setup
 from setuptools import find_packages
 import os
 
-version = os.environ.get("PACKAGE_VERSION", "v0.1.0")
+version = os.environ.get("PACKAGE_VERSION", "v0.1.1")
 
 install_requires = [
     "acme>=2.6.0",
