@@ -53,9 +53,9 @@ class _StackitClient(object):
         """
         Add a TXT record using the supplied information.
 
-        :param domain: The zone dnsName.
-        :param validation_name: The record name.
-        :param validation: The record content.
+        :param domain: The domain one level above the validation name.
+        :param validation_name: The acme challenge record name.
+        :param validation: The acme challenge record content.
         """
         zone_id = self._get_zone_id(domain)
         rrset = self._get_rrset(zone_id, validation_name)
@@ -137,16 +137,23 @@ class _StackitClient(object):
         :param domain: The domain (zone dnsName) for which the zone ID is needed.
         :return: The ID of the zone.
         """
-        res = requests.get(
-            f"{self.base_url}/v1/projects/{self.project_id}/zones?dnsName[eq]={domain}&active[eq]=true",
-            headers=self.headers,
-        )
-        if res.status_code != 200 or len(res.json()["zones"]) == 0:
-            raise errors.PluginError(
-                f"Could not find zone id for domain {domain}, Response: {res.text}"
+        parts = domain.split('.')
+
+        # we are searching for the best matching zone. We can do that by iterating over the parts of the domain
+        # from left to right.
+        for i in range(len(parts)):
+            subdomain = '.'.join(parts[i:])
+            res = requests.get(
+                f"{self.base_url}/v1/projects/{self.project_id}/zones?dnsName[eq]={subdomain}&active[eq]=true",
+                headers=self.headers,
             )
 
-        return res.json()["zones"][0]["id"]
+            if res.status_code == 200 and len(res.json()["zones"]) > 0:
+                return res.json()["zones"][0]["id"]
+
+        raise errors.PluginError(
+            f"Could not find zone id for domain {domain}, Response: {res.text}"
+        )
 
     def _get_rrset(self, zone_id: str, validation_name: str) -> Optional[RRSet]:
         """
@@ -256,7 +263,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         """
         Carry out a DNS update.
 
-        :param domain: The domain where the DNS record will be added.
+        :param domain: The domain where the DNS record will be added. Does not need to be the zone dns name but any domain.
         :param validation_name: The name of the DNS record.
         :param validation: The validation content to be added to the DNS record.
         """
