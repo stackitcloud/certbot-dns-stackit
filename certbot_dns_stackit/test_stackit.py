@@ -220,20 +220,24 @@ class TestAuthenticator(unittest.TestCase):
 
     @patch.object(Authenticator, "conf")
     @patch.object(Authenticator, "_configure_credentials")
-    def test_setup_credentials_with_service_account(self, mock_configure_credentials, mock_conf):
+    def test_setup_credentials_with_service_account(
+        self, mock_configure_credentials, mock_conf
+    ):
         # Simulate `service_account` being set
-        mock_conf.return_value = 'service_account_value'
+        mock_conf.return_value = "service_account_value"
 
         self.authenticator._setup_credentials()
 
         # Assert _configure_credentials was not called
         mock_configure_credentials.assert_not_called()
         # Assert service_account is set correctly
-        self.assertEqual(self.authenticator.service_account, 'service_account_value')
+        self.assertEqual(self.authenticator.service_account, "service_account_value")
 
     @patch.object(Authenticator, "conf")
     @patch.object(Authenticator, "_configure_credentials")
-    def test_setup_credentials_without_service_account(self, mock_configure_credentials, mock_conf):
+    def test_setup_credentials_without_service_account(
+        self, mock_configure_credentials, mock_conf
+    ):
         # Simulate `service_account` not being set
         mock_conf.return_value = None
         mock_creds = Mock()
@@ -283,7 +287,11 @@ class TestAuthenticator(unittest.TestCase):
             "test_domain", "validation_name_test", "validation_test"
         )
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"credentials": {"iss": "test_iss", "sub": "test_sub", "aud": "test_aud", "kid": "test_kid", "privateKey": "test_private_key"}}')
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data='{"credentials": {"iss": "test_iss", "sub": "test_sub", "aud": "test_aud", "kid": "test_kid", "privateKey": "test_private_key"}}',
+    )
     @patch("json.load", lambda x: json.loads(x.read()))
     def test_load_service_file(self, mock_load_service_file):
         expected_credentials = {
@@ -307,44 +315,49 @@ class TestAuthenticator(unittest.TestCase):
     @patch("jwt.encode")
     def test_generate_jwt(self, mock_jwt_encode):
         credentials = {
-            'iss': 'issuer',
-            'sub': 'subject',
-            'aud': 'audience',
-            'kid': 'key_id',
-            'privateKey': 'private_key'
+            "iss": "issuer",
+            "sub": "subject",
+            "aud": "audience",
+            "kid": "key_id",
+            "privateKey": "private_key",
         }
         self.authenticator._generate_jwt(credentials)
         mock_jwt_encode.assert_called()
 
     def test_generate_jwt_fail(self):
         credentials = {
-            'iss': 'issuer',
-            'sub': 'subject',
-            'aud': 'audience',
-            'kid': 'key_id',
-            'privateKey': 'not_a_valid_key'
+            "iss": "issuer",
+            "sub": "subject",
+            "aud": "audience",
+            "kid": "key_id",
+            "privateKey": "not_a_valid_key",
         }
         with self.assertRaises(jwt.exceptions.InvalidKeyError):
             token = self.authenticator._generate_jwt(credentials)
             self.assertIsNone(token)
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_request_access_token_success(self, mock_post):
         mock_response = mock_post.return_value
-        mock_response.raise_for_status = lambda: None  # Mock raise_for_status to do nothing
-        mock_response.json.return_value = {'access_token': 'mocked_access_token'}
+        mock_response.raise_for_status = (
+            lambda: None
+        )  # Mock raise_for_status to do nothing
+        mock_response.json.return_value = {"access_token": "mocked_access_token"}
 
-        result = self.authenticator._request_access_token('jwt_token_example')
+        result = self.authenticator._request_access_token("jwt_token_example")
 
         # Assertions
         mock_post.assert_called_once_with(
-            'https://service-account.api.stackit.cloud/token',
-            data={'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer', 'assertion': 'jwt_token_example'},
-            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+            "https://service-account.api.stackit.cloud/token",
+            data={
+                "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                "assertion": "jwt_token_example",
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
-        self.assertEqual(result, 'mocked_access_token')
+        self.assertEqual(result, "mocked_access_token")
 
-    @patch('requests.post')
+    @patch("requests.post")
     def test_request_access_token_failure_raises_http_error(self, mock_post):
         mock_response = Response()
         mock_response.status_code = 403
@@ -352,25 +365,35 @@ class TestAuthenticator(unittest.TestCase):
         mock_response.raise_for_status = lambda: (_ for _ in ()).throw(HTTPError())
 
         with self.assertRaises(errors.PluginError):
-            self.authenticator._request_access_token('jwt_token_example')
+            self.authenticator._request_access_token("jwt_token_example")
 
         mock_post.assert_called_once()
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"credentials": {"iss": "test_iss", "sub": "test_sub", "aud": "test_aud", "kid": "test_kid", "privateKey": "test_private_key"}}')
-    @patch.object(Authenticator, '_request_access_token')
-    @patch.object(Authenticator, '_generate_jwt')
-    @patch.object(Authenticator, '_load_service_file')
-    def test_generate_jwt_token_success(self, mock_load_service_file, mock_generate_jwt, mock_request_access_token, mock_open):
-        mock_load_service_file.return_value = {'dummy': 'credentials'}
-        mock_generate_jwt.return_value = 'jwt_token_example'
-        mock_request_access_token.return_value = 'access_token_example'
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data='{"credentials": {"iss": "test_iss", "sub": "test_sub", "aud": "test_aud", "kid": "test_kid", "privateKey": "test_private_key"}}',
+    )
+    @patch.object(Authenticator, "_request_access_token")
+    @patch.object(Authenticator, "_generate_jwt")
+    @patch.object(Authenticator, "_load_service_file")
+    def test_generate_jwt_token_success(
+        self,
+        mock_load_service_file,
+        mock_generate_jwt,
+        mock_request_access_token,
+        mock_open,
+    ):
+        mock_load_service_file.return_value = {"dummy": "credentials"}
+        mock_generate_jwt.return_value = "jwt_token_example"
+        mock_request_access_token.return_value = "access_token_example"
 
-        result = self.authenticator._generate_jwt_token('path/to/service/file')
+        result = self.authenticator._generate_jwt_token("path/to/service/file")
 
-        self.assertEqual(result, 'access_token_example')
-        mock_load_service_file.assert_called_once_with('path/to/service/file')
-        mock_generate_jwt.assert_called_once_with({'dummy': 'credentials'})
-        mock_request_access_token.assert_called_once_with('jwt_token_example')
+        self.assertEqual(result, "access_token_example")
+        mock_load_service_file.assert_called_once_with("path/to/service/file")
+        mock_generate_jwt.assert_called_once_with({"dummy": "credentials"})
+        mock_request_access_token.assert_called_once_with("jwt_token_example")
 
 
 if __name__ == "__main__":

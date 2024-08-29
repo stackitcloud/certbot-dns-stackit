@@ -161,12 +161,12 @@ class _StackitClient(object):
         :param domain: The domain (zone dnsName) for which the zone ID is needed.
         :return: The ID of the zone.
         """
-        parts = domain.split('.')
+        parts = domain.split(".")
 
         # we are searching for the best matching zone. We can do that by iterating over the parts of the domain
         # from left to right.
         for i in range(len(parts)):
-            subdomain = '.'.join(parts[i:])
+            subdomain = ".".join(parts[i:])
             res = requests.get(
                 f"{self.base_url}/v1/projects/{self.project_id}/zones?dnsName[eq]={subdomain}&active[eq]=true",
                 headers=self.headers,
@@ -340,8 +340,8 @@ class Authenticator(dns_common.DNSAuthenticator):
         :return: Service file credentials if the file is found and valid, None otherwise.
         """
         try:
-            with open(file_path, 'r') as file:
-                return json.load(file)['credentials']
+            with open(file_path, "r") as file:
+                return json.load(file)["credentials"]
         except FileNotFoundError:
             logging.error(f"File not found: {file_path}")
             return None
@@ -354,15 +354,17 @@ class Authenticator(dns_common.DNSAuthenticator):
         :return: A JWT token as a string.
         """
         payload = {
-            "iss": credentials['iss'],
-            "sub": credentials['sub'],
-            "aud": credentials['aud'],
+            "iss": credentials["iss"],
+            "sub": credentials["sub"],
+            "aud": credentials["aud"],
             "exp": int(time.time()) + 900,
             "iat": int(time.time()),
-            "jti": str(uuid.uuid4())
+            "jti": str(uuid.uuid4()),
         }
-        headers = {'kid': credentials['kid']}
-        return jwt.encode(payload, credentials['privateKey'], algorithm='RS512', headers=headers)
+        headers = {"kid": credentials["kid"]}
+        return jwt.encode(
+            payload, credentials["privateKey"], algorithm="RS512", headers=headers
+        )
 
     def _request_access_token(self, jwt_token: str) -> str:
         """
@@ -372,13 +374,17 @@ class Authenticator(dns_common.DNSAuthenticator):
         :return: An access token if the request is successful, None otherwise.
         """
         data = {
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion': jwt_token
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "assertion": jwt_token,
         }
         try:
-            response = requests.post('https://service-account.api.stackit.cloud/token', data=data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            response = requests.post(
+                "https://service-account.api.stackit.cloud/token",
+                data=data,
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+            )
             response.raise_for_status()
-            return response.json().get('access_token')
+            return response.json().get("access_token")
         except requests.exceptions.RequestException as e:
             raise errors.PluginError(f"Failed to request access token: {e}")
 
