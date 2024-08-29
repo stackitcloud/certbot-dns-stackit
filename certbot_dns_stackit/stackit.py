@@ -363,7 +363,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         }
         headers = {"kid": credentials["kid"]}
         return jwt.encode(
-            payload, credentials["privateKey"], algorithm="RS512", headers=headers
+            payload, credentials["privateKey"], algorithm="RS512", headers=headers  # nosemgrep "privateKey" is just the key for the dictionary
         )
 
     def _request_access_token(self, jwt_token: str) -> str:
