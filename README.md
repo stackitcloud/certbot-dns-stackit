@@ -28,9 +28,12 @@ certificates. The subsequent section delineates the pertinent arguments and thei
 
 | Argument                            | Example Value     | Description                                                                                                                                                                     |
 |-------------------------------------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `--authenticator`                   | dns-stackit       | Engages the STACKIT authenticator mechanism. This must be configured as dns-stackit. (Mandatory)                                                                                | 
-| `--dns-stackit-credentials`         | ./credentials.ini | Denotes the directory path to the credentials file for STACKIT DNS. This document must encapsulate the dns_stackit_auth_token and dns_stackit_project_id variables. (Mandatory) |
-| `--dns-stackit-propagation-seconds` | 900               | Configures the delay prior to initiating the DNS record query. A 900-second interval (equivalent to 15 minutes) is recommended. (Default: 900)                                  |
+| `--authenticator`                   | dns-stackit                            | Engages the STACKIT authenticator mechanism. This must be configured as dns-stackit. (Mandatory)                                            | 
+| `--dns-stackit-project-id`          | '8a4c68b1-586a-4534-aa0c-9f8c12334a76' | Sets the STACKIT project id if the service account authentication is used. (Recommended)|
+| `--dns-stackit-service-account`     | ./service-account.pem                  | Denotes the directory path to the STACKIT service account file. (Recommended)                                   |
+| `--dns-stackit-credentials`         | ./credentials.ini                      | Denotes the directory path to the credentials file for STACKIT DNS. This document must encapsulate the dns_stackit_auth_token and dns_stackit_project_id variables.     |
+| `--dns-stackit-propagation-seconds` | 900                                    | Configures the delay prior to initiating the DNS record query. A 900-second interval (equivalent to 15 minutes) is recommended. (Default: 900)                                  |
+Either the --dns-stackit-credentials flag or the --dns-stackit-service-account and --dns-stackit-project-id flags are mandatory.
 
 ### Example
 
@@ -64,6 +67,11 @@ dns_stackit_project_id = "your_project_id_here"
 It's crucial to replace "your_token_here" and "your_project_id_here" placeholders with the genuine STACKIT
 authentication token and project ID. The token's associated service account necessitates project membership privileges
 for record set creation.
+
+### Authentication via STACKIT service account
+
+The service account allows the user to use a long lived authentication which generates short lived tokens. To setup a service account refer to the [service account documentation](https://docs.stackit.cloud/stackit/en/create-a-service-account-134415839.html).
+It's important to also set the --dns-stackit-project-id flag to the corresponding STACKIT project when using a service account.
 
 ## Test Procedures
 
