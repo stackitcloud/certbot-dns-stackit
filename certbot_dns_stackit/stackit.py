@@ -1,8 +1,13 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional, List, Callable
-
+from typing import Optional, List, Callable, TypedDict
+import jwt
+import jwt.help
+import json
+import time
+import uuid
 import requests
+
 from certbot import errors
 from certbot.plugins import dns_common
 
@@ -23,6 +28,25 @@ class RRSet:
 
     id: str
     records: List[Record]
+
+
+class ServiceFileCredentials(TypedDict):
+    """
+    Represents the credentials obtained from a service file for authentication.
+
+    Attributes:
+        iss (str): The issuer of the token, typically the email address of the service account.
+        sub (str): The subject of the token, usually the same as `iss` unless acting on behalf of another user.
+        aud (str): The audience for the token, indicating the intended recipient, usually the authentication URL.
+        kid (str): The key ID used for identifying the private key corresponding to the public key.
+        privateKey (str): The private key used to sign the authentication token.
+    """
+
+    iss: str
+    sub: str
+    aud: str
+    kid: str
+    privateKey: str
 
 
 class _StackitClient(object):
@@ -227,11 +251,15 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     Attributes:
         credentials: A configuration object that holds STACKIT API credentials.
+        service_account: A configuration object that holds the service account file path.
     """
 
     def __init__(self, *args, **kwargs):
         """Initialize the Authenticator by calling the parent's init method."""
         super(Authenticator, self).__init__(*args, **kwargs)
+
+        self.credentials = None
+        self.service_account = None
 
     @classmethod
     def add_parser_arguments(cls, add: Callable, **kwargs):
@@ -244,20 +272,25 @@ class Authenticator(dns_common.DNSAuthenticator):
         super(Authenticator, cls).add_parser_arguments(
             add, default_propagation_seconds=900
         )
+        add("service-account", help="Service account file path")
         add("credentials", help="STACKIT credentials INI file.")
+        add("project-id", help="STACKIT project ID")
 
     def _setup_credentials(self):
-        """Set up and configure the STACKIT credentials."""
-        self.credentials = self._configure_credentials(
-            "credentials",
-            "STACKIT credentials for the STACKIT DNS API",
-            {
-                "project_id": "Specifies the project id of the STACKIT project.",
-                "auth_token": "Defines the authentication token for the STACKIT DNS API. Keep in mind that the "
-                "service account to this token need to have project edit permissions as we create txt "
-                "records in the zone",
-            },
-        )
+        """Set up and configure the STACKIT credentials based on provided input."""
+        if self.conf("service_account") is not None:
+            self.service_account = self.conf("service_account")
+        else:
+            self.credentials = self._configure_credentials(
+                "credentials",
+                "STACKIT credentials for the STACKIT DNS API",
+                {
+                    "project_id": "Specifies the project id of the STACKIT project.",
+                    "auth_token": "Defines the authentication token for the STACKIT DNS API. Keep in mind that the "
+                    "service account to this token need to have project edit permissions as we create txt "
+                    "records in the zone",
+                },
+            )
 
     def _perform(self, domain: str, validation_name: str, validation: str):
         """
@@ -281,16 +314,86 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     def _get_stackit_client(self) -> _StackitClient:
         """
-        Instantiate and return a StackitClient object.
+        Instantiate and return a StackitClient object based on the authentication method.
 
-        :return: A _StackitClient instance to interact with the STACKIT DNS API.
+        :return: A StackitClient object.
         """
         base_url = "https://dns.api.stackit.cloud"
-        if self.credentials.conf("base_url") is not None:
+        if self.credentials and self.credentials.conf("base_url") is not None:
             base_url = self.credentials.conf("base_url")
 
+        if self.service_account is not None:
+            access_token = self._generate_jwt_token(self.conf("service_account"))
+            if access_token:
+                return _StackitClient(access_token, self.conf("project-id"), base_url)
         return _StackitClient(
             self.credentials.conf("auth_token"),
             self.credentials.conf("project_id"),
             base_url,
         )
+
+    def _load_service_file(self, file_path: str) -> Optional[ServiceFileCredentials]:
+        """
+        Load service file credentials from a specified file path.
+
+        :param file_path: The path to the service account file.
+        :return: Service file credentials if the file is found and valid, None otherwise.
+        """
+        try:
+            with open(file_path, 'r') as file:
+                return json.load(file)['credentials']
+        except FileNotFoundError:
+            logging.error(f"File not found: {file_path}")
+            return None
+
+    def _generate_jwt(self, credentials: ServiceFileCredentials) -> str:
+        """
+        Generate a JWT token using the provided service file credentials.
+
+        :param credentials: The service file credentials.
+        :return: A JWT token as a string.
+        """
+        payload = {
+            "iss": credentials['iss'],
+            "sub": credentials['sub'],
+            "aud": credentials['aud'],
+            "exp": int(time.time()) + 900,
+            "iat": int(time.time()),
+            "jti": str(uuid.uuid4())
+        }
+        headers = {'kid': credentials['kid']}
+        return jwt.encode(payload, credentials['privateKey'], algorithm='RS512', headers=headers)
+
+    def _request_access_token(self, jwt_token: str) -> str:
+        """
+        Request an access token using a JWT token.
+
+        :param jwt_token: The JWT token used to request the access token.
+        :return: An access token if the request is successful, None otherwise.
+        """
+        data = {
+            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+            'assertion': jwt_token
+        }
+        try:
+            response = requests.post('https://service-account.api.stackit.cloud/token', data=data, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            response.raise_for_status()
+            return response.json().get('access_token')
+        except requests.exceptions.RequestException as e:
+            raise errors.PluginError(f"Failed to request access token: {e}")
+
+    def _generate_jwt_token(self, file_path: str) -> Optional[str]:
+        """
+        Generate a JWT token and request an access token using the service file at the given path.
+
+        :param file_path: The path to the service account file.
+        :return: An access token if the process is successful, None otherwise.
+        """
+        credentials = self._load_service_file(file_path)
+        if credentials is None:
+            raise errors.PluginError("Failed to load service file credentials.")
+        jwt_token = self._generate_jwt(credentials)
+        bearer = self._request_access_token(jwt_token)
+        if bearer is None:
+            raise errors.PluginError("Could not obtain access token.")
+        return bearer
