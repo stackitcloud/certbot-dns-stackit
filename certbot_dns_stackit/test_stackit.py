@@ -223,14 +223,11 @@ class TestAuthenticator(unittest.TestCase):
     def test_setup_credentials_with_service_account(
         self, mock_configure_credentials, mock_conf
     ):
-        # Simulate `service_account` being set
         mock_conf.return_value = "service_account_value"
 
         self.authenticator._setup_credentials()
 
-        # Assert _configure_credentials was not called
         mock_configure_credentials.assert_not_called()
-        # Assert service_account is set correctly
         self.assertEqual(self.authenticator.service_account, "service_account_value")
 
     @patch.object(Authenticator, "conf")
@@ -238,14 +235,12 @@ class TestAuthenticator(unittest.TestCase):
     def test_setup_credentials_without_service_account(
         self, mock_configure_credentials, mock_conf
     ):
-        # Simulate `service_account` not being set
         mock_conf.return_value = None
         mock_creds = Mock()
         mock_configure_credentials.return_value = mock_creds
 
         self.authenticator._setup_credentials()
 
-        # Assert _configure_credentials was called with the correct arguments
         mock_configure_credentials.assert_called_once_with(
             "credentials",
             "STACKIT credentials for the STACKIT DNS API",
@@ -256,7 +251,6 @@ class TestAuthenticator(unittest.TestCase):
                 "records in the zone",
             },
         )
-        # Assert credentials are set correctly
         self.assertEqual(self.authenticator.credentials, mock_creds)
 
     @patch.object(Authenticator, "_get_stackit_client")
@@ -309,6 +303,7 @@ class TestAuthenticator(unittest.TestCase):
     @patch("logging.error")
     def test_load_service_file_not_found(self, mock_log, mock_file):
         result = self.authenticator._load_service_file("nonexistent_path")
+
         self.assertIsNone(result)
         mock_log.assert_called()
 
@@ -321,6 +316,7 @@ class TestAuthenticator(unittest.TestCase):
             "kid": "key_id",
             "privateKey": "private_key",
         }
+
         self.authenticator._generate_jwt(credentials)
         mock_jwt_encode.assert_called()
 
@@ -332,6 +328,7 @@ class TestAuthenticator(unittest.TestCase):
             "kid": "key_id",
             "privateKey": "not_a_valid_key",
         }
+
         with self.assertRaises(jwt.exceptions.InvalidKeyError):
             token = self.authenticator._generate_jwt(credentials)
             self.assertIsNone(token)
@@ -339,14 +336,11 @@ class TestAuthenticator(unittest.TestCase):
     @patch("requests.post")
     def test_request_access_token_success(self, mock_post):
         mock_response = mock_post.return_value
-        mock_response.raise_for_status = (
-            lambda: None
-        )  # Mock raise_for_status to do nothing
+        mock_response.raise_for_status = lambda: None
         mock_response.json.return_value = {"access_token": "mocked_access_token"}
 
         result = self.authenticator._request_access_token("jwt_token_example")
 
-        # Assertions
         mock_post.assert_called_once_with(
             "https://service-account.api.stackit.cloud/token",
             data={
@@ -366,7 +360,6 @@ class TestAuthenticator(unittest.TestCase):
 
         with self.assertRaises(errors.PluginError):
             self.authenticator._request_access_token("jwt_token_example")
-
         mock_post.assert_called_once()
 
     @patch(
