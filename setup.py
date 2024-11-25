@@ -38,7 +38,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/stackitcloud/certbot-dns-stackit",
     author="STACKIT DNS",
-    author_email="stackit-dns@mail.schwarz",
+    author_email="dns@stackit.cloud",
     license="Apache License 2.0",
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     classifiers=[
