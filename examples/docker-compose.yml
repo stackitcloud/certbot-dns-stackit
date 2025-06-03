@@ -12,6 +12,9 @@ services:
     entrypoint: certbot
     command: >
       certonly
+      --agree-tos
+      --non-interactive
+      --email dns@${DOMAIN}
       --authenticator dns-stackit
       --dns-stackit-credentials /stackit.ini
       --dns-stackit-propagation-seconds 60

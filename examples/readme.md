@@ -36,3 +36,10 @@ WILDCARD=*.example.com
 ```
 docker compose up certbot
 ```
+
+### 4. Cert permission
+
+The certs and the live folder will be `root:root`, in order to access them with your user
+```bash
+sudo chown -R $(id -u):$(id -g) ./letsencrypt
+```
