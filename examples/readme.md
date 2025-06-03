@@ -22,7 +22,7 @@
 
 ⚠️️️ Make sure the file is secure: (`chmod 600 stackit.ini`)
 ```
-dns_stackit_api_token = YOUR_API_TOKEN
+dns_stackit_auth_token = YOUR_API_TOKEN
 dns_stackit_project_id = YOUR_PROJECT_ID
 ```
 
