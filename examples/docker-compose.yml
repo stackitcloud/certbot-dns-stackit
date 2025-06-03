@@ -12,7 +12,7 @@ services:
     entrypoint: certbot
     command: >
       certonly
-      --dns-stackit
+      --authenticator dns-stackit
       --dns-stackit-credentials /stackit.ini
       --dns-stackit-propagation-seconds 60
       -d "${WILDCARD}" -d "${DOMAIN}"
