@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  certbot:
+    build:
+      context: .
+      dockerfile: ../Dockerfile
+    container_name: certbot-stackit
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - ./stackit.ini:/stackit.ini:ro
+    entrypoint: certbot
+    command: >
+      certonly
+      --dns-stackit
+      --dns-stackit-credentials /stackit.ini
+      --dns-stackit-propagation-seconds 60
+      -d "${WILDCARD}" -d "${DOMAIN}"
+  certbot-renew:
+    build:
+      context: .
+      dockerfile: ../Dockerfile
+    container_name: certbot-renew
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - ./stackit.ini:/stackit.ini:ro
+    entrypoint: certbot
+    command: renew
