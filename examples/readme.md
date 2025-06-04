@@ -17,6 +17,9 @@
 
 ## 🛠️ Setup Instructions
 
+### ⚠️ Disclaimer
+
+This setup is provided as an **example only** and is **not ready for production use**. It lacks container image best practices, such as proper security hardening, minimal image sizes, and other considerations necessary for production environments. Use at your own risk and ensure you follow best practices before deploying to production.
 
 ### 1. Create a file named `stackit.ini` in the root directory:
 
