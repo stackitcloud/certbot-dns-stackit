@@ -18,7 +18,7 @@ install_requires = [
     "flake8",
     "pydocstyle",
     "black",
-    "click==8.2.1",
+    "click==8.3.0",
     "coverage",
     "PyJWT==2.10.1"
 ]
