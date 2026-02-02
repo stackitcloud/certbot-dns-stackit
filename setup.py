@@ -20,7 +20,7 @@ install_requires = [
     "black",
     "click==8.3.1",
     "coverage",
-    "PyJWT==2.10.1"
+    "PyJWT==2.11.0"
 ]
 
 # read the contents of your README file
