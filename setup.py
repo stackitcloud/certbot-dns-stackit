@@ -9,6 +9,11 @@ install_requires = [
     "certbot>=2.6.0",
     "setuptools",
     "requests",
+    "click>=8.3.1",
+    "PyJWT>=2.11.0"
+]
+
+dev_requires = [
     "mock",
     "requests-mock",
     "mypy",
@@ -18,12 +23,9 @@ install_requires = [
     "flake8",
     "pydocstyle",
     "black",
-    "click==8.3.1",
     "coverage",
-    "PyJWT==2.11.0"
 ]
 
-# read the contents of your README file
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
@@ -57,6 +59,9 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Security",
         "Topic :: System :: Installation/Setup",
@@ -67,6 +72,9 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=install_requires,
+    extras_require={
+        "dev": dev_requires,
+    },
     entry_points={
         "certbot.plugins": ["dns-stackit = certbot_dns_stackit.stackit:Authenticator"]
     },
