@@ -7,11 +7,15 @@
     ":gitSignOff"
   ],
   "dependencyDashboard": false,
+  "osvVulnerabilityAlerts": true,
+  "minimumReleaseAge": "7 days",
+  "vulnerabilityAlerts": {
+    "minimumReleaseAge": null
+  },
   "packageRules": [
     {
       "matchManagers": ["pipenv", "poetry", "pip-compile", "pip_requirements", "setup-cfg"],
-      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"],
-      "automerge": true
+      "matchUpdateTypes": ["major", "minor", "patch", "pin", "digest"]
     }
   ]
 }
