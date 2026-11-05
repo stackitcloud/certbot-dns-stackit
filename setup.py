@@ -9,8 +9,8 @@ install_requires = [
     "certbot>=2.6.0",
     "setuptools",
     "requests",
-    "click>=8.3.1",
-    "PyJWT>=2.11.0"
+    "click>=8.5.0",
+    "PyJWT>=2.15.1"
 ]
 
 dev_requires = [
