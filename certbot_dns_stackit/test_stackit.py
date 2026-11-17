@@ -215,7 +215,7 @@ class TestStackitClient(unittest.TestCase):
 class TestAuthenticator(unittest.TestCase):
     def setUp(self):
         mock_config = Mock()
-        mock_name = Mock()
+        mock_name = "dns-stackit"
         self.authenticator = Authenticator(mock_config, mock_name)
 
     @patch.object(Authenticator, "conf")
