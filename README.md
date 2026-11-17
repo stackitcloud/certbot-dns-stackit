@@ -32,6 +32,8 @@ certificates. The subsequent section delineates the pertinent arguments and thei
 | `--dns-stackit-project-id`          | '8a4c68b1-586a-4534-aa0c-9f8c12334a76' | Sets the STACKIT project id if the service account authentication is used. (Recommended)|
 | `--dns-stackit-service-account`     | ./service-account.pem                  | Denotes the directory path to the STACKIT service account file. (Recommended)                                   |
 | `--dns-stackit-credentials`         | ./credentials.ini                      | Denotes the directory path to the credentials file for STACKIT DNS. This document must encapsulate the dns_stackit_auth_token and dns_stackit_project_id variables.     |
+| `--dns-stackit-base-url`            | https://dns.api.stackit.cloud          | Sets the STACKIT DNS API base URL. (Default: https://dns.api.stackit.cloud)                                                                                             |
+| `--dns-stackit-token-url`           | https://service-account.api.stackit.cloud/token | Sets the STACKIT service account token endpoint URL when using service account authentication. (Default: https://service-account.api.stackit.cloud/token)      |
 | `--dns-stackit-propagation-seconds` | 900                                    | Configures the delay prior to initiating the DNS record query. A 900-second interval (equivalent to 15 minutes) is recommended. (Default: 900)                                  |
 Either the --dns-stackit-credentials flag or the --dns-stackit-service-account and --dns-stackit-project-id flags are mandatory.
 

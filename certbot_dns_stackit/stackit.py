@@ -275,6 +275,14 @@ class Authenticator(dns_common.DNSAuthenticator):
         add("service-account", help="Service account file path")
         add("credentials", help="STACKIT credentials INI file.")
         add("project-id", help="STACKIT project ID")
+        add(
+            "base-url",
+            help="STACKIT DNS API base URL (default: https://dns.api.stackit.cloud)",
+        )
+        add(
+            "token-url",
+            help="STACKIT service account token URL (default: https://service-account.api.stackit.cloud/token)",
+        )
 
     def _setup_credentials(self):
         """Set up and configure the STACKIT credentials based on provided input."""
@@ -319,8 +327,11 @@ class Authenticator(dns_common.DNSAuthenticator):
         :return: A StackitClient object.
         """
         base_url = "https://dns.api.stackit.cloud"
-        if self.credentials and self.credentials.conf("base_url") is not None:
-            base_url = self.credentials.conf("base_url")
+        custom_base_url = self.conf("base-url")
+        if isinstance(custom_base_url, str) and custom_base_url:
+            base_url = custom_base_url.rstrip("/")
+        elif self.credentials and self.credentials.conf("base_url") is not None:
+            base_url = self.credentials.conf("base_url").rstrip("/")
 
         if self.service_account is not None:
             access_token = self._generate_jwt_token(self.conf("service_account"))
@@ -376,13 +387,18 @@ class Authenticator(dns_common.DNSAuthenticator):
         :param jwt_token: The JWT token used to request the access token.
         :return: An access token if the request is successful, None otherwise.
         """
+        token_url = "https://service-account.api.stackit.cloud/token"
+        custom_token_url = self.conf("token-url")
+        if isinstance(custom_token_url, str) and custom_token_url:
+            token_url = custom_token_url
+
         data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
             "assertion": jwt_token,
         }
         try:
             response = requests.post(
-                "https://service-account.api.stackit.cloud/token",
+                token_url,
                 data=data,
                 headers={"Content-Type": "application/x-www-form-urlencoded"},
             )
