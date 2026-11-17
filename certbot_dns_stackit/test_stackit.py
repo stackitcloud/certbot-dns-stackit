@@ -215,7 +215,7 @@ class TestStackitClient(unittest.TestCase):
 class TestAuthenticator(unittest.TestCase):
     def setUp(self):
         mock_config = Mock()
-        mock_name = Mock()
+        mock_name = "dns-stackit"
         self.authenticator = Authenticator(mock_config, mock_name)
 
     @patch.object(Authenticator, "conf")
@@ -350,6 +350,62 @@ class TestAuthenticator(unittest.TestCase):
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         self.assertEqual(result, "mocked_access_token")
+
+    @patch.object(Authenticator, "conf")
+    @patch("requests.post")
+    def test_request_access_token_custom_token_url(self, mock_post, mock_conf):
+        mock_conf.return_value = "https://custom.token.url/token"
+        mock_response = mock_post.return_value
+        mock_response.raise_for_status = lambda: None
+        mock_response.json.return_value = {"access_token": "mocked_access_token"}
+
+        result = self.authenticator._request_access_token("jwt_token_example")
+
+        mock_post.assert_called_once_with(
+            "https://custom.token.url/token",
+            data={
+                "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                "assertion": "jwt_token_example",
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        self.assertEqual(result, "mocked_access_token")
+
+    @patch.object(Authenticator, "_generate_jwt_token", return_value="sa_token")
+    @patch.object(Authenticator, "conf")
+    def test_get_stackit_client_service_account_custom_base_url(
+        self, mock_conf, mock_gen_jwt
+    ):
+        self.authenticator.service_account = "path/to/sa.json"
+        conf_values = {
+            "base-url": "https://custom.dns.api.stackit.cloud/",
+            "service_account": "path/to/sa.json",
+            "project-id": "proj-123",
+        }
+        mock_conf.side_effect = lambda key: conf_values.get(key)
+
+        client = self.authenticator._get_stackit_client()
+
+        self.assertEqual(client.base_url, "https://custom.dns.api.stackit.cloud")
+        self.assertEqual(client.project_id, "proj-123")
+        self.assertEqual(client.auth_token, "sa_token")
+
+    @patch.object(Authenticator, "conf", return_value=None)
+    def test_get_stackit_client_credentials_base_url(self, mock_conf):
+        mock_creds = Mock()
+        creds_values = {
+            "base_url": "https://ini.dns.api.stackit.cloud/",
+            "auth_token": "ini_token",
+            "project_id": "proj-456",
+        }
+        mock_creds.conf.side_effect = lambda key: creds_values.get(key)
+        self.authenticator.credentials = mock_creds
+
+        client = self.authenticator._get_stackit_client()
+
+        self.assertEqual(client.base_url, "https://ini.dns.api.stackit.cloud")
+        self.assertEqual(client.project_id, "proj-456")
+        self.assertEqual(client.auth_token, "ini_token")
 
     @patch("requests.post")
     def test_request_access_token_failure_raises_http_error(self, mock_post):
